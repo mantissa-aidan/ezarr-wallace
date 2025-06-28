@@ -1,0 +1,220 @@
+version: '3'
+
+networks:
+  ezarr_network:
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.2
+    environment:
+      - PUID=13001
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/sonarr-config:/config
+      - /mnt/ezarr-storage/setup/data:/data
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.3
+    environment:
+      - PUID=13002
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/radarr-config:/config
+      - /mnt/ezarr-storage/setup/data:/data
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.4
+    environment:
+      - PUID=13004
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/readarr-config:/config
+      - /mnt/ezarr-storage/setup/data:/data
+    ports:
+      - "8787:8787"
+    restart: unless-stopped
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.5
+    environment:
+      - user=13014:13000
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/audiobookshelf:/config
+      - /mnt/ezarr-storage/setup/data/media/audiobooks:/audiobooks
+      - /mnt/ezarr-storage/setup/data/media/podcasts:/podcasts
+      - /mnt/ezarr-storage/setup/data/media/audiobookshelf-metadata:/metadata
+    ports:
+      - "13378:80"
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.6
+    environment:
+      - PUID=13013
+      - PGID=13000
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/bazarr-config:/config
+      - /mnt/ezarr-storage/setup/data/media:/media
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.7
+    environment:
+      - PUID=13012
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/jellyseerr-config:/app/config
+    ports:
+      - "5056:5055"
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.8
+    environment:
+      - PUID=13006
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/prowlarr-config:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.9
+    environment:
+      - PUID=13008
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/jackett-config:/config
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.10
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Australia/Sydney
+    ports:
+      - "8191:8191"
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.11
+    environment:
+      - PUID=0
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/jellyfin-config:/config
+      - /mnt/ezarr-storage/setup/data/media:/data
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.12
+    environment:
+      - PUID=13007
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+      - WEBUI_PORT=8080
+    volumes:
+      - /mnt/ezarr-storage/setup/config/qbittorrent-config:/config
+      - /mnt/ezarr-storage/setup/data/torrents:/data/torrents
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    networks:
+      ezarr_network:
+        ipv4_address: 172.21.0.13
+    environment:
+      - PUID=13011
+      - PGID=13000
+      - UMASK=002
+      - TZ=Australia/Sydney
+    volumes:
+      - /mnt/ezarr-storage/setup/config/sabnzbd-config:/config
+      - /mnt/ezarr-storage/setup/data/usenet:/downloads
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
