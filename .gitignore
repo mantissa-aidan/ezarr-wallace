@@ -1,0 +1,13 @@
+# Ignore video files
+*.mp4
+*.mov
+*.wmv
+*.flv
+*.avi
+*.mkv
+.env*
+__pycache__/
+.Trash-1000/
+setup/config/
+lost+found/ 
+*.srt
